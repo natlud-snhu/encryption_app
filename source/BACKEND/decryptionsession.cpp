@@ -99,7 +99,10 @@ void DecryptionSession::decryptAll() {
 			ID += (unsigned int(character) << (24 - (i * 8))); //perform bit manipulation to reconstruct ID
 			index += (this->ID_seeds.at(i)[1] * 4);
 		};
-		this->decrypted = (this->ID == ID); //IDs must be equal for decryption to have been successful
+		if (!(this->ID == ID)) { //IDs must be equal for decryption to have been successful
+			this->decrypted = false;
+			return;
+		};
 	} catch (std::exception a) {
 		this->decrypted = false;
 		return;
