@@ -132,6 +132,15 @@ void DecryptionSession::printState() {
 	};
 	std::cout << "Plain text: " << this->plain_text << "\n";
 }
+
+std::vector<std::string> DecryptionSession::textToHex() {
+	std::vector<std::string> return_vector = {};
+	for (int i = 0; i < this->encrypted_text.size(); i++) { //iterates through text
+		return_vector.push_back(intToHex(unsigned int(this->encrypted_text.at(i))));
+	};
+	return return_vector;
+};
+
 void DecryptionSession::readFromFile(std::string file_path) {
 	//manage file system
 	std::ifstream read_file;

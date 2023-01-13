@@ -22,5 +22,6 @@ public:
 	void saveToFile(std::string file_path); 
 	void readFromFile(std::string fle_path);
 	void tryDecryption(std::string pass); //finishes decryption for session made with only a filepath
+	std::vector<std::string> textToHex(); //converts the encrypted text to hex and returns it
 	bool decrypted = 0; //whether file has been decrypted
 };

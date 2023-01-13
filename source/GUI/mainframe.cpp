@@ -15,6 +15,7 @@ static wxSimplebook* main_book;
 static wxTextCtrl* encryptpassword_entry;
 static wxTextCtrl* encrypttext_entry;
 static wxTextCtrl* decryptpassword_entry;
+static wxTextCtrl* decryptmemory_view;
 static std::string decrypt_file_path;
 static DecryptionSession decrypt_session;
 
@@ -77,16 +78,22 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 	wxPanel* decrypt_panel = new wxPanel(main_book, wxID_ANY);
 	wxBoxSizer* decryptsizer_main = new wxBoxSizer(wxVERTICAL);
 	wxBoxSizer* decryptsizer_password = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer* decryptsizer_memory = new wxBoxSizer(wxVERTICAL);
 	wxButton* decryptback_button = new wxBitmapButton(decrypt_panel, wxID_ANY, wxBitmap("back-arrow.png", wxBITMAP_TYPE_PNG), wxPoint(0, 0), wxSize(30, 30));
 	wxStaticText* decryptpassword_label = new wxStaticText(decrypt_panel, wxID_ANY, "Password");
 	decryptpassword_entry = new wxTextCtrl(decrypt_panel, wxID_ANY, wxEmptyString, wxPoint(-1, -1), wxSize(-1, 30), wxTE_PASSWORD);
 	decryptpassword_entry->SetMaxLength(16); 
+	wxStaticText* decryptmemory_label = new wxStaticText(decrypt_panel, wxID_ANY, "Encrypted Memory");
+	decryptmemory_view = new wxTextCtrl(decrypt_panel, wxID_ANY, wxEmptyString, wxPoint(-1, -1), wxSize(-1, -1), wxTE_READONLY | wxTE_MULTILINE | wxTE_WORDWRAP);
 	wxButton* decryptmain_button = new wxButton(decrypt_panel, wxID_ANY, "Decrypt");
 	decrypt_panel->SetSizer(decryptsizer_main);
 	decryptsizer_main->Add(decryptback_button, 0);
 	decryptsizer_main->Add(decryptsizer_password, 1, (wxTOP, 10) | wxEXPAND);
 	decryptsizer_password->Add(decryptpassword_label, 0, wxEXPAND);
 	decryptsizer_password->Add(decryptpassword_entry, 0, wxEXPAND);
+	decryptsizer_main->Add(decryptsizer_memory, 1, wxEXPAND);
+	decryptsizer_memory->Add(decryptmemory_label);
+	decryptsizer_memory->Add(decryptmemory_view, 1, wxEXPAND);
 	decryptsizer_main->Add(decryptmain_button, 0, wxEXPAND);
 	main_book->AddPage(decrypt_panel, "Decrypt");
 	//initialize main_book
@@ -104,7 +111,9 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 };
 
 void MainFrame::onEncryptButton(wxCommandEvent& event) {
-	encryptpassword_entry->ChangeValue(""); //resets field
+	//resets fields
+	encryptpassword_entry->ChangeValue(""); 
+	encrypttext_entry->ChangeValue("");
 	main_book->SetSelection(1);
 };
 
@@ -120,7 +129,24 @@ void MainFrame::onDecryptButton(wxCommandEvent& event) {
 	}
 	//create new decryption session
 	decrypt_session = DecryptionSession(decrypt_file_path);
-	decryptpassword_entry->ChangeValue(""); //resets field
+	//resets fields
+	decryptpassword_entry->ChangeValue(""); 
+	decryptmemory_view->ChangeValue("");
+	//fill in memory view
+	std::vector<std::string> converted_memory = decrypt_session.textToHex();
+	int index = 0;
+	for (int i = 0; i < converted_memory.size(); i++) {
+		decryptmemory_view->AppendText(converted_memory.at(i));
+		decryptmemory_view->AppendText(" ");
+		if (index == 7) {
+			index = 0;
+			decryptmemory_view->AppendText("\n");
+		}
+		else {
+			index++;
+		}
+
+	};
 	main_book->SetSelection(2);
 }
 
